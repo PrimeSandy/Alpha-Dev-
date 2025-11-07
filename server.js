@@ -16,20 +16,17 @@ const app = express();
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// Serve static files from the same directory
 app.use(express.static(__dirname));
 
 // MongoDB Connection
-const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/project-booking";
+const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/alpha-developers";
 mongoose.connect(mongoURI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => {
     console.error("❌ MongoDB connection error:", err);
-    process.exit(1);
   });
 
-// Enhanced Booking Schema
+// Booking Schema
 const bookingSchema = new mongoose.Schema({
   name: { type: String, required: true },
   gender: String,
@@ -43,7 +40,7 @@ const bookingSchema = new mongoose.Schema({
 
 const Booking = mongoose.model("Booking", bookingSchema);
 
-// Email transporter - only initialize if email credentials are provided
+// Email configuration (optional)
 let transporter;
 if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
   transporter = nodemailer.createTransport({
@@ -53,109 +50,81 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       pass: process.env.EMAIL_PASS
     }
   });
-
-  // Verify email configuration
-  transporter.verify(function (error, success) {
-    if (error) {
-      console.log("❌ Email configuration error:", error);
-    } else {
-      console.log("✅ Email server is ready to send messages");
-    }
-  });
+  console.log("✅ Email service configured");
 } else {
-  console.log("⚠️ Email credentials not provided - email notifications disabled");
+  console.log("ℹ️ Email service not configured");
 }
 
-// Enhanced submission endpoint
+// Routes
 app.post("/submit", async (req, res) => {
   try {
     const { name, gender, phone, studyField, heardAbout, idea, email } = req.body;
 
-    // Basic validation
     if (!name || !phone || !email) {
       return res.status(400).json({ 
-        message: "❌ Please fill in all required fields: Name, Phone, and Email." 
+        message: "Please fill in all required fields." 
       });
     }
 
-    // Create and save booking
     const booking = new Booking({ 
-      name, 
-      gender, 
-      phone, 
-      studyField, 
-      heardAbout, 
-      idea, 
-      email 
+      name, gender, phone, studyField, heardAbout, idea, email 
     });
     
     await booking.save();
-    console.log("✅ New booking saved:", { name, email, phone });
+    console.log("✅ New booking:", { name, email, phone });
 
-    // Send email notification if configured
+    // Send email if configured
     if (transporter) {
       try {
         const mailOptions = {
           from: process.env.EMAIL_USER,
           to: process.env.EMAIL_USER,
-          subject: "🚀 New Project Booking - Alpha Developers",
+          subject: "New Project Booking - Alpha Developers",
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #4F46E5;">New Project Booking Received</h2>
+            <div style="font-family: Arial, sans-serif;">
+              <h2 style="color: #4F46E5;">New Project Booking</h2>
               <div style="background: #f8fafc; padding: 20px; border-radius: 8px;">
                 <p><strong>Name:</strong> ${name}</p>
-                <p><strong>Gender:</strong> ${gender || 'Not specified'}</p>
                 <p><strong>Phone:</strong> ${phone}</p>
                 <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Study Field:</strong> ${studyField || 'Not specified'}</p>
-                <p><strong>Heard About:</strong> ${heardAbout || 'Not specified'}</p>
-                <p><strong>Project Idea:</strong></p>
-                <p style="background: white; padding: 10px; border-radius: 4px; border-left: 4px solid #4F46E5;">
-                  ${idea || 'No details provided'}
-                </p>
-                <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>Project Idea:</strong> ${idea || 'No details'}</p>
+                <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
               </div>
             </div>
           `
         };
-
         await transporter.sendMail(mailOptions);
-        console.log("✅ Email notification sent");
       } catch (emailError) {
-        console.error("❌ Email sending failed:", emailError);
-        // Don't fail the request if email fails
+        console.error("Email error:", emailError);
       }
     }
     
     res.json({ 
-      message: "✅ Thank you! Your project has been submitted successfully. We'll contact you soon." 
+      message: "✅ Thank you! Your project has been submitted successfully." 
     });
     
   } catch (error) {
-    console.error("Submission error:", error);
+    console.error("Server error:", error);
     res.status(500).json({ 
-      message: "❌ Server error. Please try again later or contact support." 
+      message: "Server error. Please try again." 
     });
   }
 });
 
-// Health check endpoint
-app.get("/health", (req, res) => {
+// Health check
+app.get("/api/health", (req, res) => {
   res.json({ 
     status: "OK", 
-    database: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
-    email: transporter ? "Configured" : "Not configured",
-    timestamp: new Date().toISOString()
+    database: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected" 
   });
 });
 
-// Serve the main page for all other routes (SPA support)
+// Serve frontend
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📁 Serving from: ${__dirname}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
