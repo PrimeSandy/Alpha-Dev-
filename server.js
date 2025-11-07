@@ -71,7 +71,7 @@ app.post("/submit", async (req, res) => {
     });
     
     await booking.save();
-    console.log("✅ New booking:", { name, email, phone });
+    console.log("✅ New booking saved:", { name, email, phone });
 
     // Send email if configured
     if (transporter) {
@@ -79,52 +79,60 @@ app.post("/submit", async (req, res) => {
         const mailOptions = {
           from: process.env.EMAIL_USER,
           to: process.env.EMAIL_USER,
-          subject: "New Project Booking - Alpha Developers",
+          subject: "🚀 New Project Booking - Alpha Developers",
           html: `
-            <div style="font-family: Arial, sans-serif;">
-              <h2 style="color: #4F46E5;">New Project Booking</h2>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #4F46E5;">New Project Booking Received</h2>
               <div style="background: #f8fafc; padding: 20px; border-radius: 8px;">
                 <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Gender:</strong> ${gender || 'Not specified'}</p>
                 <p><strong>Phone:</strong> ${phone}</p>
                 <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Project Idea:</strong> ${idea || 'No details'}</p>
-                <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>Study Field:</strong> ${studyField || 'Not specified'}</p>
+                <p><strong>Heard About:</strong> ${heardAbout || 'Not specified'}</p>
+                <p><strong>Project Idea:</strong></p>
+                <p style="background: white; padding: 10px; border-radius: 4px; border-left: 4px solid #4F46E5;">
+                  ${idea || 'No details provided'}
+                </p>
+                <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
               </div>
             </div>
           `
         };
         await transporter.sendMail(mailOptions);
+        console.log("✅ Email notification sent");
       } catch (emailError) {
-        console.error("Email error:", emailError);
+        console.error("❌ Email sending failed:", emailError);
       }
     }
     
     res.json({ 
-      message: "✅ Thank you! Your project has been submitted successfully." 
+      message: "✅ Thank you! Your project has been submitted successfully. We'll contact you soon." 
     });
     
   } catch (error) {
-    console.error("Server error:", error);
+    console.error("❌ Submission error:", error);
     res.status(500).json({ 
-      message: "Server error. Please try again." 
+      message: "❌ Server error. Please try again later." 
     });
   }
 });
 
-// Health check
+// Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ 
     status: "OK", 
-    database: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected" 
+    database: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
+    timestamp: new Date().toISOString()
   });
 });
 
-// Serve frontend
+// Serve the main page for all other routes
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
