@@ -1,149 +1,719 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Project Booking | PTS</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Booking System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Firebase UI CSS -->
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css" />
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: var(--primary-color) !important;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 80px 0;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+        
+        .project-card {
+            height: 100%;
+        }
+        
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        
+        .user-info {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        footer {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        #firebaseui-auth-container {
+            margin-top: 20px;
+        }
+        
+        /* Fix for dropdown menu in navbar */
+        .navbar-nav .dropdown-menu {
+            position: absolute;
+        }
+        
+        /* Loading spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-  <style>
-    body {
-  background: #f8f9fa;
-  font-family: 'Poppins', sans-serif;
-}
-.card {
-  border-radius: 20px;
-}
-h2 {
-  color: #007bff;
-}
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">ProjectBooking</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#projects">My Projects</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#bookings">Bookings</a>
+                    </li>
+                </ul>
+                <div class="navbar-nav">
+                    <div id="user-info" class="nav-item dropdown hidden">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <span id="user-name">User</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#profile">Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="sign-out">Sign Out</a></li>
+                        </ul>
+                    </div>
+                    <div id="auth-buttons" class="nav-item">
+                        <button class="btn btn-outline-light" id="sign-in-btn">Sign In</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-  </style>
-  <div class="container mt-5">
-    <h2 class="text-center mb-4">📘 Project Booking Form</h2>
-
-    <!-- Firebase Auth Section -->
-    <div id="loginSection" class="text-center mb-4">
-      <button id="loginBtn" class="btn btn-primary">Login with Google</button>
-      <button id="logoutBtn" class="btn btn-danger d-none">Logout</button>
-      <p id="userInfo" class="mt-2 text-success fw-bold"></p>
+    <!-- Login Section -->
+    <div id="login-section" class="container">
+        <div class="login-container">
+            <h2 class="text-center mb-4">Welcome to ProjectBooking</h2>
+            <p class="text-center mb-4">Please sign in to manage your project bookings</p>
+            <div id="firebaseui-auth-container"></div>
+            <div id="loader" class="loader hidden"></div>
+        </div>
     </div>
 
-    <!-- Booking Form -->
-    <form id="bookingForm" class="card p-4 shadow">
-      <div class="mb-3">
-        <label class="form-label">Name</label>
-        <input type="text" id="name" class="form-control" required />
-      </div>
+    <!-- Main Content (Hidden until login) -->
+    <div id="main-content" class="hidden">
+        <!-- Hero Section -->
+        <section class="hero-section" id="home">
+            <div class="container text-center">
+                <h1 class="display-4 mb-4">Project Booking System</h1>
+                <p class="lead mb-4">Efficiently manage and book projects with our streamlined platform</p>
+                <button class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#newProjectModal">Create New Project</button>
+            </div>
+        </section>
 
-      <div class="mb-3">
-        <label class="form-label">Education Status</label>
-        <input type="text" id="education" class="form-control" required />
-      </div>
+        <!-- Dashboard -->
+        <section class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Active Projects</h5>
+                            <h2 class="text-primary" id="active-projects-count">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Completed</h5>
+                            <h2 class="text-success" id="completed-projects-count">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Pending</h5>
+                            <h2 class="text-warning" id="pending-projects-count">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Bookings</h5>
+                            <h2 class="text-info" id="total-bookings-count">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-      <div class="mb-3">
-        <label class="form-label">Where you found our site?</label>
-        <input type="text" id="found" class="form-control" required />
-      </div>
+        <!-- Projects Section -->
+        <section class="container mt-5" id="projects">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>My Projects</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newProjectModal">
+                    <i class="bi bi-plus-circle"></i> New Project
+                </button>
+            </div>
+            
+            <div class="row" id="projects-container">
+                <!-- Projects will be dynamically added here -->
+            </div>
+        </section>
 
-      <div class="mb-3">
-        <label class="form-label">When you want the project?</label>
-        <input type="date" id="when" class="form-control" required />
-      </div>
+        <!-- Bookings Section -->
+        <section class="container mt-5" id="bookings">
+            <h2 class="mb-4">Recent Bookings</h2>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>Date</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookings-table">
+                        <!-- Bookings will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
 
-      <div class="mb-3">
-        <label class="form-label">Type of Project</label>
-        <select id="type" class="form-select" required>
-          <option value="">Select</option>
-          <option value="Website">Website</option>
-          <option value="Mobile App">Mobile App</option>
-        </select>
-      </div>
+    <!-- New Project Modal -->
+    <div class="modal fade" id="newProjectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Project</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="new-project-form">
+                        <div class="mb-3">
+                            <label for="project-name" class="form-label">Project Name</label>
+                            <input type="text" class="form-control" id="project-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="project-description" class="form-label">Description</label>
+                            <textarea class="form-control" id="project-description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="project-start-date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="project-start-date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="project-end-date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="project-end-date">
+                        </div>
+                        <div class="mb-3">
+                            <label for="project-budget" class="form-label">Budget ($)</label>
+                            <input type="number" class="form-control" id="project-budget" min="0" step="0.01">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="save-project-btn">Save Project</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-      <div class="mb-3">
-        <label class="form-label">Describe your project or handover idea</label>
-        <textarea id="idea" class="form-control" rows="3" required></textarea>
-      </div>
+    <!-- Footer -->
+    <footer class="text-center">
+        <div class="container">
+            <p>&copy; 2023 ProjectBooking System. All rights reserved.</p>
+        </div>
+    </footer>
 
-      <button type="submit" class="btn btn-success w-100">Submit Booking</button>
-    </form>
-  </div>
+    <!-- Firebase and other JS libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/firebaseui@6.0.1/dist/firebaseui.js"></script>
+    
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlEAhsMJUSf-KYxpRJyM6Y4Kaee8X6pIU",
+            authDomain: "pts-host.firebaseapp.com",
+            projectId: "pts-host",
+            storageBucket: "pts-host.firebasestorage.app",
+            messagingSenderId: "161812167259",
+            appId: "1:161812167259:web:79f5e919b43bc9cfd75d7e",
+            measurementId: "G-7VL9THWMFX"
+        };
 
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script type="module" src="script.js"></script>
-  <script>
-    // Firebase setup
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Initialize FirebaseUI
+        const ui = new firebaseui.auth.AuthUI(firebase.auth());
+        
+        // Firebase UI configuration
+        const uiConfig = {
+            callbacks: {
+                signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+                    // User successfully signed in
+                    handleSignedInUser(authResult.user);
+                    // Don't redirect, we'll handle the UI change
+                    return false;
+                },
+                uiShown: function() {
+                    // The widget is rendered, hide the loader
+                    document.getElementById('loader').classList.add('hidden');
+                }
+            },
+            signInFlow: 'popup',
+            signInSuccessUrl: '#',
+            signInOptions: [
+                firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                {
+                    provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+                    requireDisplayName: true
+                }
+            ],
+            tosUrl: '#',
+            privacyPolicyUrl: '#'
+        };
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBlEAhsMJUSf-KYxpRJyM6Y4Kaee8X6pIU",
-  authDomain: "pts-host.firebaseapp.com",
-  projectId: "pts-host",
-  storageBucket: "pts-host.firebasestorage.app",
-  messagingSenderId: "161812167259",
-  appId: "1:161812167259:web:79f5e919b43bc9cfd75d7e",
-  measurementId: "G-7VL9THWMFX"
-};
+        // DOM elements
+        const loginSection = document.getElementById('login-section');
+        const mainContent = document.getElementById('main-content');
+        const userInfo = document.getElementById('user-info');
+        const authButtons = document.getElementById('auth-buttons');
+        const signInBtn = document.getElementById('sign-in-btn');
+        const signOutBtn = document.getElementById('sign-out');
+        const userName = document.getElementById('user-name');
+        const projectsContainer = document.getElementById('projects-container');
+        const bookingsTable = document.getElementById('bookings-table');
+        const saveProjectBtn = document.getElementById('save-project-btn');
+        const loader = document.getElementById('loader');
+        
+        // Data storage
+        let projects = [];
+        let bookings = [];
+        
+        // Firebase auth state observer
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                // User is signed in
+                handleSignedInUser(user);
+            } else {
+                // User is signed out
+                handleSignedOutUser();
+            }
+        });
+        
+        // Handle signed in user
+        function handleSignedInUser(user) {
+            console.log('User signed in:', user);
+            loginSection.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+            userInfo.classList.remove('hidden');
+            authButtons.classList.add('hidden');
+            userName.textContent = user.displayName || user.email;
+            
+            // Load user data
+            loadUserData(user.uid);
+        }
+        
+        // Handle signed out user
+        function handleSignedOutUser() {
+            console.log('User signed out');
+            loginSection.classList.remove('hidden');
+            mainContent.classList.add('hidden');
+            userInfo.classList.add('hidden');
+            authButtons.classList.remove('hidden');
+            projects = [];
+            bookings = [];
+            
+            // Reset UI
+            renderProjects();
+            renderBookings();
+            updateDashboard();
+            
+            // Start Firebase UI
+            ui.start('#firebaseui-auth-container', uiConfig);
+        }
+        
+        // Sign in button click
+        signInBtn.addEventListener('click', function() {
+            loader.classList.remove('hidden');
+            ui.start('#firebaseui-auth-container', uiConfig);
+        });
+        
+        // Sign out button click
+        signOutBtn.addEventListener('click', function() {
+            firebase.auth().signOut().catch(function(error) {
+                console.error('Sign out error:', error);
+            });
+        });
+        
+        // Load user data (mock implementation - replace with actual API calls)
+        function loadUserData(userId) {
+            // Mock projects data
+            projects = [
+                {
+                    id: 1,
+                    name: "Website Redesign",
+                    description: "Complete redesign of company website with modern UI/UX",
+                    startDate: "2023-05-01",
+                    endDate: "2023-07-15",
+                    budget: 5000,
+                    status: "active",
+                    userId: userId
+                },
+                {
+                    id: 2,
+                    name: "Mobile App Development",
+                    description: "Development of a cross-platform mobile application",
+                    startDate: "2023-06-10",
+                    endDate: "2023-09-30",
+                    budget: 12000,
+                    status: "pending",
+                    userId: userId
+                },
+                {
+                    id: 3,
+                    name: "E-commerce Platform",
+                    description: "Build a custom e-commerce solution with payment integration",
+                    startDate: "2023-04-15",
+                    endDate: "2023-06-30",
+                    budget: 8000,
+                    status: "completed",
+                    userId: userId
+                }
+            ];
+            
+            // Mock bookings data
+            bookings = [
+                {
+                    id: 1,
+                    projectId: 1,
+                    projectName: "Website Redesign",
+                    date: "2023-05-15",
+                    duration: "2 weeks",
+                    status: "confirmed"
+                },
+                {
+                    id: 2,
+                    projectId: 2,
+                    projectName: "Mobile App Development",
+                    date: "2023-06-20",
+                    duration: "3 months",
+                    status: "pending"
+                },
+                {
+                    id: 3,
+                    projectId: 3,
+                    projectName: "E-commerce Platform",
+                    date: "2023-04-20",
+                    duration: "2.5 months",
+                    status: "completed"
+                }
+            ];
+            
+            // Update UI with data
+            renderProjects();
+            renderBookings();
+            updateDashboard();
+        }
+        
+        // Render projects
+        function renderProjects() {
+            projectsContainer.innerHTML = '';
+            
+            if (projects.length === 0) {
+                projectsContainer.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <h4>No projects found</h4>
+                        <p>Create your first project to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            projects.forEach(project => {
+                const statusClass = getStatusClass(project.status);
+                
+                const projectCard = document.createElement('div');
+                projectCard.className = 'col-md-4 mb-4';
+                projectCard.innerHTML = `
+                    <div class="card project-card">
+                        <div class="card-header d-flex justify-content-between align-items-center position-relative">
+                            <span class="project-title">${project.name}</span>
+                            <span class="badge ${statusClass}">${project.status}</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">${project.description}</p>
+                            <div class="mb-2"><strong>Start:</strong> ${formatDate(project.startDate)}</div>
+                            <div class="mb-2"><strong>End:</strong> ${project.endDate ? formatDate(project.endDate) : 'Ongoing'}</div>
+                            <div class="mb-3"><strong>Budget:</strong> $${project.budget?.toLocaleString() || '0'}</div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="editProject(${project.id})">Edit</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteProject(${project.id})">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                projectsContainer.appendChild(projectCard);
+            });
+        }
+        
+        // Render bookings
+        function renderBookings() {
+            bookingsTable.innerHTML = '';
+            
+            if (bookings.length === 0) {
+                bookingsTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <h5>No bookings found</h5>
+                            <p>Create a project first to make bookings</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            bookings.forEach(booking => {
+                const statusClass = getStatusClass(booking.status);
+                
+                const bookingRow = document.createElement('tr');
+                bookingRow.innerHTML = `
+                    <td>${booking.projectName}</td>
+                    <td>${formatDate(booking.date)}</td>
+                    <td>${booking.duration}</td>
+                    <td><span class="badge ${statusClass}">${booking.status}</span></td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewBooking(${booking.id})">View</button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="cancelBooking(${booking.id})">Cancel</button>
+                        </div>
+                    </td>
+                `;
+                
+                bookingsTable.appendChild(bookingRow);
+            });
+        }
+        
+        // Update dashboard counts
+        function updateDashboard() {
+            const activeCount = projects.filter(p => p.status === 'active').length;
+            const completedCount = projects.filter(p => p.status === 'completed').length;
+            const pendingCount = projects.filter(p => p.status === 'pending').length;
+            const bookingsCount = bookings.length;
+            
+            document.getElementById('active-projects-count').textContent = activeCount;
+            document.getElementById('completed-projects-count').textContent = completedCount;
+            document.getElementById('pending-projects-count').textContent = pendingCount;
+            document.getElementById('total-bookings-count').textContent = bookingsCount;
+        }
+        
+        // Save new project
+        saveProjectBtn.addEventListener('click', function() {
+            const projectName = document.getElementById('project-name').value;
+            const projectDescription = document.getElementById('project-description').value;
+            const projectStartDate = document.getElementById('project-start-date').value;
+            const projectEndDate = document.getElementById('project-end-date').value;
+            const projectBudget = document.getElementById('project-budget').value;
+            
+            if (!projectName || !projectStartDate) {
+                alert('Please fill in required fields (Project Name and Start Date)');
+                return;
+            }
+            
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert('Please sign in to create projects');
+                return;
+            }
+            
+            // Create new project
+            const newProject = {
+                id: projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1,
+                name: projectName,
+                description: projectDescription,
+                startDate: projectStartDate,
+                endDate: projectEndDate,
+                budget: parseFloat(projectBudget) || 0,
+                status: 'pending',
+                userId: user.uid
+            };
+            
+            projects.push(newProject);
+            
+            // Reset form and close modal
+            document.getElementById('new-project-form').reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('newProjectModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            // Update UI
+            renderProjects();
+            updateDashboard();
+            
+            alert('Project created successfully!');
+        });
+        
+        // Helper functions
+        function getStatusClass(status) {
+            switch(status) {
+                case 'active': 
+                case 'confirmed': 
+                    return 'bg-success';
+                case 'pending': 
+                    return 'bg-warning';
+                case 'completed': 
+                    return 'bg-info';
+                case 'cancelled':
+                    return 'bg-danger';
+                default: 
+                    return 'bg-secondary';
+            }
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                return new Date(dateString).toLocaleDateString(undefined, options);
+            } catch (error) {
+                return 'Invalid Date';
+            }
+        }
+        
+        // Action functions
+        window.editProject = function(id) {
+            const project = projects.find(p => p.id === id);
+            if (project) {
+                alert(`Edit project: ${project.name}\nID: ${id}\n\nIn a real application, this would open an edit form.`);
+            }
+        };
+        
+        window.deleteProject = function(id) {
+            if (confirm('Are you sure you want to delete this project?')) {
+                projects = projects.filter(p => p.id !== id);
+                // Also remove associated bookings
+                bookings = bookings.filter(b => b.projectId !== id);
+                renderProjects();
+                renderBookings();
+                updateDashboard();
+                alert('Project deleted successfully!');
+            }
+        };
+        
+        window.viewBooking = function(id) {
+            const booking = bookings.find(b => b.id === id);
+            if (booking) {
+                alert(`View booking:\nProject: ${booking.projectName}\nDate: ${formatDate(booking.date)}\nDuration: ${booking.duration}\nStatus: ${booking.status}`);
+            }
+        };
+        
+        window.cancelBooking = function(id) {
+            if (confirm('Are you sure you want to cancel this booking?')) {
+                const booking = bookings.find(b => b.id === id);
+                if (booking) {
+                    booking.status = 'cancelled';
+                    renderBookings();
+                    alert('Booking cancelled successfully!');
+                }
+            }
+        };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const userInfo = document.getElementById("userInfo");
-const form = document.getElementById("bookingForm");
-
-// Login
-loginBtn.addEventListener("click", async () => {
-  await signInWithPopup(auth, provider);
-});
-
-// Logout
-logoutBtn.addEventListener("click", async () => {
-  await signOut(auth);
-});
-
-// Check Auth State
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loginBtn.classList.add("d-none");
-    logoutBtn.classList.remove("d-none");
-    userInfo.textContent = `Logged in as ${user.displayName}`;
-  } else {
-    loginBtn.classList.remove("d-none");
-    logoutBtn.classList.add("d-none");
-    userInfo.textContent = "";
-  }
-});
-
-// Handle Form Submit
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const data = {
-    name: document.getElementById("name").value,
-    education: document.getElementById("education").value,
-    found: document.getElementById("found").value,
-    when: document.getElementById("when").value,
-    type: document.getElementById("type").value,
-    idea: document.getElementById("idea").value,
-  };
-
-  try {
-    await axios.post("http://localhost:3000/submit", data);
-    alert("✅ Booking submitted successfully!");
-    form.reset();
-  } catch (error) {
-    alert("❌ Error submitting booking!");
-    console.error(error);
-  }
-});
-
-  </script>
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Project Booking System initialized');
+            // Set minimum date to today for date inputs
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('project-start-date').min = today;
+            document.getElementById('project-end-date').min = today;
+        });
+    </script>
 </body>
 </html>
-
