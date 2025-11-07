@@ -12,11 +12,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// Middleware
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Serve static files from the same directory
 app.use(express.static(__dirname));
 
-// MongoDB Connection with better error handling
-mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/project-booking")
+// MongoDB Connection
+const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/project-booking";
+mongoose.connect(mongoURI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => {
     console.error("❌ MongoDB connection error:", err);
@@ -37,23 +43,28 @@ const bookingSchema = new mongoose.Schema({
 
 const Booking = mongoose.model("Booking", bookingSchema);
 
-// ✅ CORRECTED: Fixed the typo - createTransport (not createTransporter)
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+// Email transporter - only initialize if email credentials are provided
+let transporter;
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
 
-// Verify email configuration on startup
-transporter.verify(function (error, success) {
-  if (error) {
-    console.log("❌ Email configuration error:", error);
-  } else {
-    console.log("✅ Email server is ready to send messages");
-  }
-});
+  // Verify email configuration
+  transporter.verify(function (error, success) {
+    if (error) {
+      console.log("❌ Email configuration error:", error);
+    } else {
+      console.log("✅ Email server is ready to send messages");
+    }
+  });
+} else {
+  console.log("⚠️ Email credentials not provided - email notifications disabled");
+}
 
 // Enhanced submission endpoint
 app.post("/submit", async (req, res) => {
@@ -79,33 +90,42 @@ app.post("/submit", async (req, res) => {
     });
     
     await booking.save();
+    console.log("✅ New booking saved:", { name, email, phone });
 
-    // Send email notification
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
-      subject: "🚀 New Project Booking - Alpha Developers",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #4F46E5;">New Project Booking Received</h2>
-          <div style="background: #f8fafc; padding: 20px; border-radius: 8px;">
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Gender:</strong> ${gender || 'Not specified'}</p>
-            <p><strong>Phone:</strong> ${phone}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Study Field:</strong> ${studyField || 'Not specified'}</p>
-            <p><strong>Heard About:</strong> ${heardAbout || 'Not specified'}</p>
-            <p><strong>Project Idea:</strong></p>
-            <p style="background: white; padding: 10px; border-radius: 4px; border-left: 4px solid #4F46E5;">
-              ${idea || 'No details provided'}
-            </p>
-            <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
-          </div>
-        </div>
-      `
-    };
+    // Send email notification if configured
+    if (transporter) {
+      try {
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: process.env.EMAIL_USER,
+          subject: "🚀 New Project Booking - Alpha Developers",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #4F46E5;">New Project Booking Received</h2>
+              <div style="background: #f8fafc; padding: 20px; border-radius: 8px;">
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Gender:</strong> ${gender || 'Not specified'}</p>
+                <p><strong>Phone:</strong> ${phone}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Study Field:</strong> ${studyField || 'Not specified'}</p>
+                <p><strong>Heard About:</strong> ${heardAbout || 'Not specified'}</p>
+                <p><strong>Project Idea:</strong></p>
+                <p style="background: white; padding: 10px; border-radius: 4px; border-left: 4px solid #4F46E5;">
+                  ${idea || 'No details provided'}
+                </p>
+                <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+              </div>
+            </div>
+          `
+        };
 
-    await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
+        console.log("✅ Email notification sent");
+      } catch (emailError) {
+        console.error("❌ Email sending failed:", emailError);
+        // Don't fail the request if email fails
+      }
+    }
     
     res.json({ 
       message: "✅ Thank you! Your project has been submitted successfully. We'll contact you soon." 
@@ -124,6 +144,7 @@ app.get("/health", (req, res) => {
   res.json({ 
     status: "OK", 
     database: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
+    email: transporter ? "Configured" : "Not configured",
     timestamp: new Date().toISOString()
   });
 });
@@ -136,4 +157,5 @@ app.get("*", (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📁 Serving from: ${__dirname}`);
 });
