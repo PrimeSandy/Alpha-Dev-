@@ -5,61 +5,188 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alpha Developers – Project Booking</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Poppins', sans-serif;
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gray-50 text-gray-800">
 
-  <!-- ✅ Navbar -->
-  <nav class="bg-indigo-600 p-4 text-white flex justify-between">
-    <h1 class="text-xl font-bold">Alpha Developers</h1>
-    <ul class="flex space-x-6">
-      <li><a href="#about" class="hover:underline">About</a></li>
-      <li><a href="#contact" class="hover:underline">Contact</a></li>
-      <li><a href="#help" class="hover:underline">Help</a></li>
-    </ul>
+  <!-- ✅ Enhanced Navbar -->
+  <nav class="gradient-bg p-4 text-white shadow-lg">
+    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+      <div class="flex items-center space-x-2 mb-4 md:mb-0">
+        <i class="fas fa-code text-xl"></i>
+        <h1 class="text-xl font-bold">Alpha Developers</h1>
+      </div>
+      <ul class="flex space-x-4 md:space-x-6">
+        <li><a href="#about" class="hover:underline transition duration-300">About</a></li>
+        <li><a href="#contact" class="hover:underline transition duration-300">Contact</a></li>
+        <li><a href="#help" class="hover:underline transition duration-300">Help</a></li>
+      </ul>
+    </div>
   </nav>
 
-  <!-- ✅ Booking Form -->
-  <section class="max-w-lg mx-auto bg-white p-8 mt-8 rounded-xl shadow-lg">
-    <h2 class="text-2xl font-semibold mb-6 text-center">Book Your Project</h2>
-
-    <!-- Firebase Login -->
-    <button id="googleLogin" class="bg-red-500 text-white w-full py-2 rounded mb-4 hover:bg-red-600">
-      Login with Google
-    </button>
-    <p id="userEmail" class="text-center mb-4 text-indigo-600 font-medium"></p>
-
-    <!-- Form -->
-    <form id="bookingForm" class="space-y-4">
-      <input name="name" placeholder="Full Name" class="w-full p-2 border rounded" required>
-      <select name="gender" class="w-full p-2 border rounded">
-        <option value="">Select Gender</option>
-        <option>Male</option>
-        <option>Female</option>
-        <option>Other</option>
-      </select>
-      <input name="phone" placeholder="Phone (WhatsApp / Call)" class="w-full p-2 border rounded" required>
-      <input name="studyField" placeholder="Field of Study (Optional)" class="w-full p-2 border rounded">
-      <select name="heardAbout" class="w-full p-2 border rounded">
-        <option>Instagram</option>
-        <option>Friend</option>
-        <option>College</option>
-        <option>Other</option>
-      </select>
-      <textarea name="idea" placeholder="Any project idea or process details?" class="w-full p-2 border rounded"></textarea>
-
-      <button type="submit" class="bg-indigo-600 text-white w-full py-2 rounded hover:bg-indigo-700">Submit</button>
-    </form>
-
-    <p id="message" class="text-center mt-4"></p>
+  <!-- ✅ Hero Section -->
+  <section class="gradient-bg text-white py-12 px-4">
+    <div class="container mx-auto text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Bring Your Project Ideas to Life</h2>
+      <p class="text-lg md:text-xl max-w-2xl mx-auto">Professional development services for students and professionals. Book your project with us today!</p>
+    </div>
   </section>
+
+  <!-- ✅ Booking Form Section -->
+  <section class="py-12 px-4">
+    <div class="container mx-auto max-w-2xl">
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
+        <!-- Form Header -->
+        <div class="gradient-bg text-white p-6 text-center">
+          <h2 class="text-2xl font-bold">Book Your Project</h2>
+          <p class="mt-2 opacity-90">Fill in your details and project requirements</p>
+        </div>
+        
+        <div class="p-6 md:p-8">
+          <!-- Firebase Login Section -->
+          <div id="loginSection" class="mb-6 text-center">
+            <p class="text-gray-600 mb-4">Sign in to save your progress and get updates</p>
+            <button id="googleLogin" class="w-full max-w-xs mx-auto bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg flex items-center justify-center space-x-3 hover:bg-gray-50 transition duration-300 shadow-sm">
+              <i class="fab fa-google text-red-500"></i>
+              <span>Continue with Google</span>
+            </button>
+            <p id="userEmail" class="mt-4 text-indigo-600 font-medium hidden"></p>
+            <button id="logoutBtn" class="mt-2 text-sm text-red-500 hover:text-red-700 hidden">
+              <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            </button>
+          </div>
+
+          <!-- Form -->
+          <form id="bookingForm" class="space-y-5">
+            <div>
+              <label class="block text-gray-700 mb-2 font-medium">Full Name</label>
+              <input name="name" placeholder="Enter your full name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300" required>
+            </div>
+            
+            <div>
+              <label class="block text-gray-700 mb-2 font-medium">Gender</label>
+              <select name="gender" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300">
+                <option value="">Select Gender</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+                <option>Prefer not to say</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-gray-700 mb-2 font-medium">Phone Number</label>
+              <input name="phone" type="tel" placeholder="WhatsApp / Call number" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300" required>
+            </div>
+            
+            <div>
+              <label class="block text-gray-700 mb-2 font-medium">Field of Study (Optional)</label>
+              <input name="studyField" placeholder="Your field of study or profession" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300">
+            </div>
+            
+            <div>
+              <label class="block text-gray-700 mb-2 font-medium">How did you hear about us?</label>
+              <select name="heardAbout" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300">
+                <option value="">Select an option</option>
+                <option>Instagram</option>
+                <option>Friend</option>
+                <option>College</option>
+                <option>Google Search</option>
+                <option>Other</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-gray-700 mb-2 font-medium">Project Details</label>
+              <textarea name="idea" placeholder="Describe your project idea, requirements, timeline, or any specific details..." rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300"></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary text-white w-full py-3 rounded-lg font-medium text-lg flex items-center justify-center">
+              <i class="fas fa-paper-plane mr-2"></i> Submit Project Request
+            </button>
+          </form>
+
+          <p id="message" class="text-center mt-4 p-3 rounded-lg hidden"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ Features Section -->
+  <section id="about" class="py-12 px-4 bg-gray-100">
+    <div class="container mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-12">Why Choose Alpha Developers?</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-xl shadow-md text-center card-hover">
+          <i class="fas fa-bolt text-indigo-600 text-3xl mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Fast Delivery</h3>
+          <p class="text-gray-600">We deliver projects on time with quality assurance.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md text-center card-hover">
+          <i class="fas fa-headset text-indigo-600 text-3xl mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">24/7 Support</h3>
+          <p class="text-gray-600">Round-the-clock support for all your queries and updates.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md text-center card-hover">
+          <i class="fas fa-shield-alt text-indigo-600 text-3xl mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Secure & Reliable</h3>
+          <p class="text-gray-600">Your data and project details are safe with us.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ Footer -->
+  <footer id="contact" class="bg-gray-800 text-white py-8 px-4">
+    <div class="container mx-auto text-center">
+      <h3 class="text-xl font-bold mb-4">Alpha Developers</h3>
+      <p class="mb-4">Got questions? Reach out to us:</p>
+      <div class="flex justify-center space-x-6 mb-6">
+        <a href="#" class="hover:text-indigo-300 transition duration-300">
+          <i class="fab fa-instagram text-xl"></i>
+        </a>
+        <a href="#" class="hover:text-indigo-300 transition duration-300">
+          <i class="fab fa-whatsapp text-xl"></i>
+        </a>
+        <a href="#" class="hover:text-indigo-300 transition duration-300">
+          <i class="fas fa-envelope text-xl"></i>
+        </a>
+      </div>
+      <p class="text-gray-400 text-sm">© 2023 Alpha Developers. All rights reserved.</p>
+    </div>
+  </footer>
 
   <!-- ✅ Firebase + JS Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
     // ✅ Firebase Config
     const firebaseConfig = {
@@ -78,25 +205,61 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
+    // Set custom parameters for the Google Auth flow
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+
+    // DOM Elements
     const loginBtn = document.getElementById("googleLogin");
+    const logoutBtn = document.getElementById("logoutBtn");
     const userEmail = document.getElementById("userEmail");
+    const loginSection = document.getElementById("loginSection");
+    const messageEl = document.getElementById("message");
 
     // ✅ Login with Google
     loginBtn.addEventListener("click", () => {
       signInWithPopup(auth, provider)
         .then(result => {
           const user = result.user;
-          userEmail.textContent = `Logged in as ${user.email}`;
-          loginBtn.style.display = "none";
+          showMessage(`Welcome, ${user.displayName || user.email}!`, 'success');
         })
-        .catch(err => alert(err.message));
+        .catch(err => {
+          console.error("Login error:", err);
+          showMessage(`Login failed: ${err.message}`, 'error');
+        });
+    });
+
+    // ✅ Logout
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth)
+        .then(() => {
+          showMessage("Logged out successfully", 'info');
+        })
+        .catch(err => {
+          showMessage(`Logout failed: ${err.message}`, 'error');
+        });
     });
 
     // ✅ Check login state
     onAuthStateChanged(auth, user => {
       if (user) {
-        userEmail.textContent = `Logged in as ${user.email}`;
-        loginBtn.style.display = "none";
+        // User is signed in
+        userEmail.textContent = `Signed in as ${user.email}`;
+        userEmail.classList.remove('hidden');
+        loginBtn.classList.add('hidden');
+        logoutBtn.classList.remove('hidden');
+        
+        // Pre-fill form with user info if available
+        const nameField = document.querySelector('input[name="name"]');
+        if (!nameField.value && user.displayName) {
+          nameField.value = user.displayName;
+        }
+      } else {
+        // User is signed out
+        userEmail.classList.add('hidden');
+        loginBtn.classList.remove('hidden');
+        logoutBtn.classList.add('hidden');
       }
     });
 
@@ -104,18 +267,64 @@
     document.getElementById("bookingForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
+      // Check if user is logged in
+      if (!auth.currentUser) {
+        showMessage('Please sign in with Google to submit your project', 'warning');
+        return;
+      }
+
       const formData = Object.fromEntries(new FormData(e.target));
-      formData.email = auth.currentUser ? auth.currentUser.email : "Not Logged In";
+      formData.email = auth.currentUser.email;
+      formData.timestamp = new Date().toISOString();
 
-      const response = await fetch("/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      });
+      try {
+        const response = await fetch("/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
 
-      const result = await response.json();
-      document.getElementById("message").textContent = result.message;
+        const result = await response.json();
+        
+        if (response.ok) {
+          showMessage(result.message, 'success');
+          e.target.reset();
+        } else {
+          showMessage(result.message || 'Submission failed', 'error');
+        }
+      } catch (error) {
+        console.error('Submission error:', error);
+        showMessage('Network error. Please try again.', 'error');
+      }
     });
+
+    // ✅ Helper function to show messages
+    function showMessage(message, type) {
+      messageEl.textContent = message;
+      messageEl.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'bg-yellow-100', 'text-yellow-700', 'bg-blue-100', 'text-blue-700');
+      
+      switch(type) {
+        case 'success':
+          messageEl.classList.add('bg-green-100', 'text-green-700');
+          break;
+        case 'error':
+          messageEl.classList.add('bg-red-100', 'text-red-700');
+          break;
+        case 'warning':
+          messageEl.classList.add('bg-yellow-100', 'text-yellow-700');
+          break;
+        case 'info':
+          messageEl.classList.add('bg-blue-100', 'text-blue-700');
+          break;
+      }
+      
+      // Auto-hide success messages after 5 seconds
+      if (type === 'success') {
+        setTimeout(() => {
+          messageEl.classList.add('hidden');
+        }, 5000);
+      }
+    }
   </script>
 
 </body>
