@@ -1,48 +1,508 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Project Booking</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            color: #333;
+        }
+
+        .admin-container {
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .admin-header h1 {
+            font-size: 1.8em;
+        }
+
+        .admin-header p {
+            opacity: 0.8;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        .login-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            padding: 20px;
+        }
+
+        .login-form {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #2980b9;
+        }
+
+        .admin-section {
+            padding: 30px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card span {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .projects-list h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .projects-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .project-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+
+        .project-card.pending {
+            border-left-color: #f39c12;
+        }
+
+        .project-card.completed {
+            border-left-color: #27ae60;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .project-info h3 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .project-meta {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .project-date {
+            color: #95a5a6;
+            font-size: 0.8em;
+        }
+
+        .project-description {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status-btn, .delete-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .status-btn {
+            background: #3498db;
+            color: white;
+        }
+
+        .status-btn.completed {
+            background: #27ae60;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .status-btn:hover, .delete-btn:hover {
+            opacity: 0.9;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .admin-section {
+                padding: 20px 15px;
+            }
+            
+            .project-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Admin — Bookings</h1>
-    <table id="bookingsTable" border="1">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Phone</th>
-          <th>Type</th>
-          <th>Idea</th>
-          <th>Developer</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>🔧 Admin Panel</h1>
+            <p>Project Booking System Management</p>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </header>
 
-  <script>
-    const password = prompt("Enter admin password:");
-    fetch("/api/bookings", {
-      headers: { Authorization: "Basic " + btoa("admin:" + password) }
-    })
-    .then(res => res.json())
-    .then(bookings => {
-      const tbody = document.querySelector("#bookingsTable tbody");
-      bookings.forEach(b => {
-        const row = `<tr>
-          <td>${b.name}</td>
-          <td>${b.phone}</td>
-          <td>${b.projectType}</td>
-          <td>${b.idea}</td>
-          <td>${b.developer}</td>
-        </tr>`;
-        tbody.innerHTML += row;
-      });
-    })
-    .catch(() => alert("Access denied!"));
-  </script>
+        <div id="loginSection" class="login-section">
+            <div class="login-form">
+                <h2>Admin Login</h2>
+                <input type="email" id="email" placeholder="Admin Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button id="loginBtn" class="login-btn">Login</button>
+                <div id="loginMessage" class="message"></div>
+            </div>
+        </div>
+
+        <div id="adminSection" class="admin-section" style="display: none;">
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Total Projects</h3>
+                    <span id="totalProjects">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending</h3>
+                    <span id="pendingProjects">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Completed</h3>
+                    <span id="completedProjects">0</span>
+                </div>
+            </div>
+
+            <div class="projects-list">
+                <h2>Project Requests</h2>
+                <div id="projectsContainer" class="projects-container">
+                    <!-- Projects will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlEAhsMJUSf-KYxpRJyM6Y4Kaee8X6pIU",
+            authDomain: "pts-host.firebaseapp.com",
+            projectId: "pts-host",
+            storageBucket: "pts-host.firebasestorage.app",
+            messagingSenderId: "161812167259",
+            appId: "1:161812167259:web:79f5e919b43bc9cfd75d7e",
+            measurementId: "G-7VL9THWMFX"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+
+        let currentUser = null;
+        const auth = firebase.auth();
+
+        // DOM Elements
+        const loginSection = document.getElementById('loginSection');
+        const adminSection = document.getElementById('adminSection');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginMessage = document.getElementById('loginMessage');
+
+        // Auth state listener
+        auth.onAuthStateChanged((user) => {
+            currentUser = user;
+            if (user) {
+                loginSection.style.display = 'none';
+                adminSection.style.display = 'block';
+                loadProjects();
+            } else {
+                loginSection.style.display = 'flex';
+                adminSection.style.display = 'none';
+            }
+        });
+
+        // Login function
+        loginBtn.addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showLoginMessage('Please enter both email and password', 'error');
+                return;
+            }
+            
+            try {
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Logging in...';
+                
+                await auth.signInWithEmailAndPassword(email, password);
+                showLoginMessage('Login successful!', 'success');
+            } catch (error) {
+                console.error('Login error:', error);
+                showLoginMessage('Login failed: ' + error.message, 'error');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        });
+
+        // Logout function
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+
+        function showLoginMessage(message, type) {
+            loginMessage.textContent = message;
+            loginMessage.className = `message ${type}`;
+        }
+
+        // Project Management
+        async function loadProjects() {
+            try {
+                const response = await fetch('/api/projects');
+                const projects = await response.json();
+                
+                displayProjects(projects);
+                updateStats(projects);
+            } catch (error) {
+                console.error('Error loading projects:', error);
+            }
+        }
+
+        function displayProjects(projects) {
+            const container = document.getElementById('projectsContainer');
+            
+            if (projects.length === 0) {
+                container.innerHTML = '<div class="loading">No projects found</div>';
+                return;
+            }
+            
+            container.innerHTML = projects.map(project => `
+                <div class="project-card ${project.status.toLowerCase()}">
+                    <div class="project-header">
+                        <div class="project-info">
+                            <h3>${project.name}</h3>
+                            <div class="project-meta">
+                                📞 ${project.phone} | 🚀 ${formatProjectType(project.projectCategory)} 
+                                | ⚙️ ${formatDevPreference(project.projectType)}
+                            </div>
+                        </div>
+                        <div class="project-date">
+                            ${new Date(project.createdAt).toLocaleDateString()}
+                        </div>
+                    </div>
+                    <div class="project-description">
+                        <strong>Description:</strong><br>
+                        ${project.description}
+                    </div>
+                    <div class="project-actions">
+                        <button class="status-btn ${project.status === 'Completed' ? 'completed' : ''}" 
+                                onclick="updateStatus('${project._id}', '${project.status === 'Completed' ? 'Pending' : 'Completed'}')">
+                            ${project.status === 'Completed' ? '✓ Completed' : 'Mark Complete'}
+                        </button>
+                        <button class="delete-btn" onclick="deleteProject('${project._id}')">
+                            🗑️ Delete
+                        </button>
+                        <span class="project-status">Status: <strong>${project.status}</strong></span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatProjectType(type) {
+            const types = {
+                'web-app': 'Web App',
+                'mobile-app': 'Mobile App',
+                'desktop-app': 'Desktop App',
+                'ecommerce': 'E-commerce',
+                'portfolio': 'Portfolio',
+                'business': 'Business',
+                'custom': 'Custom'
+            };
+            return types[type] || type;
+        }
+
+        function formatDevPreference(pref) {
+            const prefs = {
+                'developer-choice': "Developer's Choice",
+                'specific-tech': 'Specific Tech',
+                'hybrid': 'Hybrid'
+            };
+            return prefs[pref] || pref;
+        }
+
+        function updateStats(projects) {
+            document.getElementById('totalProjects').textContent = projects.length;
+            document.getElementById('pendingProjects').textContent = projects.filter(p => p.status === 'Pending').length;
+            document.getElementById('completedProjects').textContent = projects.filter(p => p.status === 'Completed').length;
+        }
+
+        // Global functions for buttons
+        window.updateStatus = async function(projectId, newStatus) {
+            try {
+                const response = await fetch(`/api/projects/${projectId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (response.ok) {
+                    loadProjects();
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        };
+
+        window.deleteProject = async function(projectId) {
+            if (confirm('Are you sure you want to delete this project?')) {
+                try {
+                    const response = await fetch(`/api/projects/${projectId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        loadProjects();
+                    }
+                } catch (error) {
+                    console.error('Error deleting project:', error);
+                }
+            }
+        };
+    </script>
 </body>
 </html>
