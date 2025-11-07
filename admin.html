@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Admin — Bookings</h1>
+    <table id="bookingsTable" border="1">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Type</th>
+          <th>Idea</th>
+          <th>Developer</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const password = prompt("Enter admin password:");
+    fetch("/api/bookings", {
+      headers: { Authorization: "Basic " + btoa("admin:" + password) }
+    })
+    .then(res => res.json())
+    .then(bookings => {
+      const tbody = document.querySelector("#bookingsTable tbody");
+      bookings.forEach(b => {
+        const row = `<tr>
+          <td>${b.name}</td>
+          <td>${b.phone}</td>
+          <td>${b.projectType}</td>
+          <td>${b.idea}</td>
+          <td>${b.developer}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    })
+    .catch(() => alert("Access denied!"));
+  </script>
+</body>
+</html>
