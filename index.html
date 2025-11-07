@@ -60,6 +60,78 @@
 
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script type="module" src="script.js"></script>
+  <script>
+    // Firebase setup
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBlEAhsMJUSf-KYxpRJyM6Y4Kaee8X6pIU",
+  authDomain: "pts-host.firebaseapp.com",
+  projectId: "pts-host",
+  storageBucket: "pts-host.firebasestorage.app",
+  messagingSenderId: "161812167259",
+  appId: "1:161812167259:web:79f5e919b43bc9cfd75d7e",
+  measurementId: "G-7VL9THWMFX"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const userInfo = document.getElementById("userInfo");
+const form = document.getElementById("bookingForm");
+
+// Login
+loginBtn.addEventListener("click", async () => {
+  await signInWithPopup(auth, provider);
+});
+
+// Logout
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+});
+
+// Check Auth State
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loginBtn.classList.add("d-none");
+    logoutBtn.classList.remove("d-none");
+    userInfo.textContent = `Logged in as ${user.displayName}`;
+  } else {
+    loginBtn.classList.remove("d-none");
+    logoutBtn.classList.add("d-none");
+    userInfo.textContent = "";
+  }
+});
+
+// Handle Form Submit
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const data = {
+    name: document.getElementById("name").value,
+    education: document.getElementById("education").value,
+    found: document.getElementById("found").value,
+    when: document.getElementById("when").value,
+    type: document.getElementById("type").value,
+    idea: document.getElementById("idea").value,
+  };
+
+  try {
+    await axios.post("http://localhost:3000/submit", data);
+    alert("✅ Booking submitted successfully!");
+    form.reset();
+  } catch (error) {
+    alert("❌ Error submitting booking!");
+    console.error(error);
+  }
+});
+
+  </script>
 </body>
 </html>
+
 
