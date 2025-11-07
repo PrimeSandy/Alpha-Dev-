@@ -184,14 +184,14 @@
 
   <!-- Firebase & App Logic -->
   <script type="module">
-    // Firebase Configuration
+    // ✅ NEW FIREBASE CONFIG - Create a new Firebase project for this
     const firebaseConfig = {
-      apiKey: "AIzaSyBhqrAdjUx84MnShzB40xXmvjgwViJ8dc0",
-      authDomain: "host-pts.firebaseapp.com",
-      projectId: "host-pts",
-      storageBucket: "host-pts.firebasestorage.app",
-      messagingSenderId: "718915433203",
-      appId: "1:718915433203:web:fdf84b59f4616286d37d86"
+      apiKey: "AIzaSyCQHr3qY3V7Q8XQ3Q6XQ9XQ2XQ1XQ0XQ0X", // You need to replace this
+      authDomain: "alpha-developers-booking.firebaseapp.com", // Replace with your domain
+      projectId: "alpha-developers-booking", // Replace with your project ID
+      storageBucket: "alpha-developers-booking.firebasestorage.app",
+      messagingSenderId: "123456789012", // Replace with your sender ID
+      appId: "1:123456789012:web:abc123def456" // Replace with your app ID
     };
 
     // Import Firebase modules
@@ -228,7 +228,17 @@
         
       } catch (error) {
         console.error('Sign-in error:', error);
-        showMessage(`Sign-in failed: ${error.message}`, 'error');
+        
+        // Specific error handling
+        if (error.code === 'auth/operation-not-allowed') {
+          showMessage('Google Sign-In is not enabled. Please contact support.', 'error');
+        } else if (error.code === 'auth/popup-blocked') {
+          showMessage('Popup was blocked. Please allow popups for this site.', 'error');
+        } else if (error.code === 'auth/popup-closed-by-user') {
+          showMessage('Sign-in was cancelled.', 'info');
+        } else {
+          showMessage(`Sign-in failed: ${error.message}`, 'error');
+        }
       } finally {
         googleLogin.classList.remove('loading');
         loginText.classList.remove('hidden');
@@ -250,7 +260,7 @@
     onAuthStateChanged(auth, (user) => {
       if (user) {
         // User is signed in
-        userEmail.textContent = user.email;
+        userEmail.textContent = `Signed in as: ${user.email}`;
         userInfo.classList.remove('hidden');
         googleLogin.classList.add('hidden');
         
@@ -270,17 +280,18 @@
     bookingForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      if (!auth.currentUser) {
-        showMessage('Please sign in with Google first', 'warning');
-        return;
-      }
+      // Allow form submission without login for testing
+      // if (!auth.currentUser) {
+      //   showMessage('Please sign in with Google first', 'warning');
+      //   return;
+      // }
 
       const submitButton = bookingForm.querySelector('button[type="submit"]');
       const formData = new FormData(bookingForm);
       const data = Object.fromEntries(formData);
       
-      // Add user email
-      data.email = auth.currentUser.email;
+      // Add user email if logged in, otherwise use placeholder
+      data.email = auth.currentUser ? auth.currentUser.email : 'guest@example.com';
 
       try {
         // Show loading state
