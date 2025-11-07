@@ -37,8 +37,8 @@ const bookingSchema = new mongoose.Schema({
 
 const Booking = mongoose.model("Booking", bookingSchema);
 
-// Email transporter with better configuration
-const transporter = nodemailer.createTransporter({
+// ✅ CORRECTED: Fixed the typo - createTransport (not createTransporter)
+const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
