@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alpha Developers – Project Booking</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+  <!-- ✅ Navbar -->
+  <nav class="bg-indigo-600 p-4 text-white flex justify-between">
+    <h1 class="text-xl font-bold">Alpha Developers</h1>
+    <ul class="flex space-x-6">
+      <li><a href="#about" class="hover:underline">About</a></li>
+      <li><a href="#contact" class="hover:underline">Contact</a></li>
+      <li><a href="#help" class="hover:underline">Help</a></li>
+    </ul>
+  </nav>
+
+  <!-- ✅ Booking Form -->
+  <section class="max-w-lg mx-auto bg-white p-8 mt-8 rounded-xl shadow-lg">
+    <h2 class="text-2xl font-semibold mb-6 text-center">Book Your Project</h2>
+
+    <!-- Firebase Login -->
+    <button id="googleLogin" class="bg-red-500 text-white w-full py-2 rounded mb-4 hover:bg-red-600">
+      Login with Google
+    </button>
+    <p id="userEmail" class="text-center mb-4 text-indigo-600 font-medium"></p>
+
+    <!-- Form -->
+    <form id="bookingForm" class="space-y-4">
+      <input name="name" placeholder="Full Name" class="w-full p-2 border rounded" required>
+      <select name="gender" class="w-full p-2 border rounded">
+        <option value="">Select Gender</option>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+      </select>
+      <input name="phone" placeholder="Phone (WhatsApp / Call)" class="w-full p-2 border rounded" required>
+      <input name="studyField" placeholder="Field of Study (Optional)" class="w-full p-2 border rounded">
+      <select name="heardAbout" class="w-full p-2 border rounded">
+        <option>Instagram</option>
+        <option>Friend</option>
+        <option>College</option>
+        <option>Other</option>
+      </select>
+      <textarea name="idea" placeholder="Any project idea or process details?" class="w-full p-2 border rounded"></textarea>
+
+      <button type="submit" class="bg-indigo-600 text-white w-full py-2 rounded hover:bg-indigo-700">Submit</button>
+    </form>
+
+    <p id="message" class="text-center mt-4"></p>
+  </section>
+
+  <!-- ✅ Firebase + JS Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+    // ✅ Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBhqrAdjUx84MnShzB40xXmvjgwViJ8dc0",
+      authDomain: "host-pts.firebaseapp.com",
+      databaseURL: "https://host-pts-default-rtdb.firebaseio.com",
+      projectId: "host-pts",
+      storageBucket: "host-pts.firebasestorage.app",
+      messagingSenderId: "718915433203",
+      appId: "1:718915433203:web:fdf84b59f4616286d37d86",
+      measurementId: "G-V15QH7N2X6"
+    };
+
+    // ✅ Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    const loginBtn = document.getElementById("googleLogin");
+    const userEmail = document.getElementById("userEmail");
+
+    // ✅ Login with Google
+    loginBtn.addEventListener("click", () => {
+      signInWithPopup(auth, provider)
+        .then(result => {
+          const user = result.user;
+          userEmail.textContent = `Logged in as ${user.email}`;
+          loginBtn.style.display = "none";
+        })
+        .catch(err => alert(err.message));
+    });
+
+    // ✅ Check login state
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        userEmail.textContent = `Logged in as ${user.email}`;
+        loginBtn.style.display = "none";
+      }
+    });
+
+    // ✅ Form Submission
+    document.getElementById("bookingForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = Object.fromEntries(new FormData(e.target));
+      formData.email = auth.currentUser ? auth.currentUser.email : "Not Logged In";
+
+      const response = await fetch("/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+      document.getElementById("message").textContent = result.message;
+    });
+  </script>
+
+</body>
+</html>

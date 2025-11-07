@@ -1,0 +1,23 @@
+{
+  "name": "project-booking",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.3.1",
+    "express": "^4.19.2",
+    "firebase-admin": "^12.1.0",
+    "mongodb": "^7.0.0",
+    "mongoose": "^8.3.1",
+    "nodemailer": "^6.9.14"
+  },
+  "description": "",
+  "devDependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
