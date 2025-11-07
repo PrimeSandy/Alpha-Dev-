@@ -23,7 +23,6 @@
       transform: translateY(-5px); 
       box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); 
     }
-    .loading { opacity: 0.6; pointer-events: none; }
     .fade-in { animation: fadeIn 0.5s ease-in; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   </style>
@@ -58,37 +57,10 @@
       <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-hover">
         <div class="gradient-bg text-white p-8 text-center">
           <h2 class="text-3xl font-bold mb-2">Book Your Project</h2>
-          <p class="text-lg opacity-90">Fill in your details and project requirements</p>
+          <p class="text-lg opacity-90">Fill in your details and we'll get back to you within 24 hours</p>
         </div>
         
         <div class="p-8">
-          <!-- Google Sign-In Section -->
-          <div id="loginSection" class="mb-8 text-center border-b pb-8">
-            <p class="text-gray-600 mb-6 text-lg">Sign in with Google to book your project</p>
-            <button id="googleLogin" class="w-full max-w-md mx-auto bg-white border-2 border-gray-200 text-gray-800 py-4 px-6 rounded-xl flex items-center justify-center space-x-4 hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 shadow-md hover:shadow-lg">
-              <i class="fab fa-google text-red-500 text-xl"></i>
-              <span id="loginText" class="text-lg font-medium">Continue with Google</span>
-              <div id="loginSpinner" class="hidden">
-                <i class="fas fa-spinner fa-spin text-gray-400"></i>
-              </div>
-            </button>
-            
-            <div id="userInfo" class="mt-6 p-4 bg-green-50 rounded-lg border border-green-200 hidden fade-in">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <i class="fas fa-check-circle text-green-500 text-xl"></i>
-                  <div>
-                    <p id="userEmail" class="text-green-800 font-semibold"></p>
-                    <p class="text-green-600 text-sm">You're ready to book your project!</p>
-                  </div>
-                </div>
-                <button id="logoutBtn" class="text-red-500 hover:text-red-700 text-sm font-medium transition duration-300">
-                  <i class="fas fa-sign-out-alt mr-1"></i> Sign Out
-                </button>
-              </div>
-            </div>
-          </div>
-
           <!-- Booking Form -->
           <form id="bookingForm" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -97,6 +69,18 @@
                 <input name="name" placeholder="Enter your full name" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300" required>
               </div>
               
+              <div>
+                <label class="block text-gray-700 mb-3 font-semibold">Email Address *</label>
+                <input name="email" type="email" placeholder="your@email.com" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300" required>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-gray-700 mb-3 font-semibold">Phone Number *</label>
+                <input name="phone" type="tel" placeholder="WhatsApp / Call number" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300" required>
+              </div>
+
               <div>
                 <label class="block text-gray-700 mb-3 font-semibold">Gender</label>
                 <select name="gender" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300">
@@ -108,15 +92,10 @@
                 </select>
               </div>
             </div>
-
-            <div>
-              <label class="block text-gray-700 mb-3 font-semibold">Phone Number *</label>
-              <input name="phone" type="tel" placeholder="WhatsApp / Call number" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300" required>
-            </div>
             
             <div>
-              <label class="block text-gray-700 mb-3 font-semibold">Field of Study (Optional)</label>
-              <input name="studyField" placeholder="Your field of study or profession" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300">
+              <label class="block text-gray-700 mb-3 font-semibold">Field of Study / Profession</label>
+              <input name="studyField" placeholder="e.g., Computer Science, Business, Engineering, etc." class="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300">
             </div>
             
             <div>
@@ -128,13 +107,14 @@
                 <option>College</option>
                 <option>Google Search</option>
                 <option>YouTube</option>
+                <option>LinkedIn</option>
                 <option>Other</option>
               </select>
             </div>
             
             <div>
               <label class="block text-gray-700 mb-3 font-semibold">Project Details *</label>
-              <textarea name="idea" placeholder="Describe your project idea, requirements, timeline, budget, or any specific details you'd like to share..." rows="5" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300" required></textarea>
+              <textarea name="idea" placeholder="Describe your project idea, requirements, timeline, budget, technologies needed, or any specific details you'd like to share..." rows="6" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300" required></textarea>
               <p class="text-sm text-gray-500 mt-2">Please provide as much detail as possible about your project requirements</p>
             </div>
 
@@ -181,144 +161,98 @@
           <p class="text-gray-600 text-lg">Your data and project details are completely safe with enterprise-level security.</p>
         </div>
       </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+        <div class="bg-white p-8 rounded-2xl shadow-lg text-center card-hover">
+          <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-users text-indigo-600 text-2xl"></i>
+          </div>
+          <h3 class="text-2xl font-semibold mb-4">Expert Team</h3>
+          <p class="text-gray-600 text-lg">Professional developers with years of experience in various technologies.</p>
+        </div>
+        <div class="bg-white p-8 rounded-2xl shadow-lg text-center card-hover">
+          <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-money-bill-wave text-indigo-600 text-2xl"></i>
+          </div>
+          <h3 class="text-2xl font-semibold mb-4">Affordable Pricing</h3>
+          <p class="text-gray-600 text-lg">Competitive pricing with flexible payment options for students and professionals.</p>
+        </div>
+        <div class="bg-white p-8 rounded-2xl shadow-lg text-center card-hover">
+          <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-gem text-indigo-600 text-2xl"></i>
+          </div>
+          <h3 class="text-2xl font-semibold mb-4">Quality Guarantee</h3>
+          <p class="text-gray-600 text-lg">100% satisfaction guarantee with free revisions until you're happy.</p>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- Footer -->
   <footer id="contact" class="bg-gray-900 text-white py-12 px-4">
-    <div class="container mx-auto text-center">
-      <h3 class="text-2xl font-bold mb-6">Alpha Developers</h3>
-      <p class="text-lg mb-8 text-gray-300">Ready to start your project? Get in touch with us today!</p>
-      <div class="flex justify-center space-x-8 mb-8">
-        <a href="#" class="hover:text-indigo-300 transition duration-300 transform hover:scale-110">
-          <i class="fab fa-instagram text-2xl"></i>
-        </a>
-        <a href="#" class="hover:text-indigo-300 transition duration-300 transform hover:scale-110">
-          <i class="fab fa-whatsapp text-2xl"></i>
-        </a>
-        <a href="mailto:contact@alphadev.com" class="hover:text-indigo-300 transition duration-300 transform hover:scale-110">
-          <i class="fas fa-envelope text-2xl"></i>
-        </a>
-        <a href="#" class="hover:text-indigo-300 transition duration-300 transform hover:scale-110">
-          <i class="fab fa-linkedin text-2xl"></i>
-        </a>
+    <div class="container mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="text-2xl font-bold mb-6">Alpha Developers</h3>
+          <p class="text-gray-300 text-lg">Transforming ideas into reality with cutting-edge technology and professional development services.</p>
+        </div>
+        
+        <div>
+          <h4 class="text-xl font-semibold mb-6">Quick Links</h4>
+          <ul class="space-y-3">
+            <li><a href="#about" class="text-gray-300 hover:text-white transition duration-300">About Us</a></li>
+            <li><a href="#contact" class="text-gray-300 hover:text-white transition duration-300">Contact</a></li>
+            <li><a href="#" class="text-gray-300 hover:text-white transition duration-300">Privacy Policy</a></li>
+            <li><a href="#" class="text-gray-300 hover:text-white transition duration-300">Terms of Service</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-xl font-semibold mb-6">Contact Info</h4>
+          <div class="space-y-3 text-gray-300">
+            <p class="flex items-center">
+              <i class="fas fa-envelope mr-3"></i>
+              contact@alphadevelopers.com
+            </p>
+            <p class="flex items-center">
+              <i class="fas fa-phone mr-3"></i>
+              +91 98765 43210
+            </p>
+            <p class="flex items-center">
+              <i class="fas fa-clock mr-3"></i>
+              24/7 Available
+            </p>
+          </div>
+        </div>
       </div>
-      <p class="text-gray-400 text-sm">© 2024 Alpha Developers. All rights reserved.</p>
+      
+      <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+        <div class="flex justify-center space-x-6 mb-6">
+          <a href="#" class="text-gray-300 hover:text-white transition duration-300 transform hover:scale-110">
+            <i class="fab fa-instagram text-2xl"></i>
+          </a>
+          <a href="#" class="text-gray-300 hover:text-white transition duration-300 transform hover:scale-110">
+            <i class="fab fa-whatsapp text-2xl"></i>
+          </a>
+          <a href="#" class="text-gray-300 hover:text-white transition duration-300 transform hover:scale-110">
+            <i class="fas fa-envelope text-2xl"></i>
+          </a>
+          <a href="#" class="text-gray-300 hover:text-white transition duration-300 transform hover:scale-110">
+            <i class="fab fa-linkedin text-2xl"></i>
+          </a>
+        </div>
+        <p class="text-gray-400 text-sm">© 2024 Alpha Developers. All rights reserved.</p>
+      </div>
     </div>
   </footer>
 
-  <!-- Firebase & App Logic -->
-  <script type="module">
-    // ✅ YOUR FIREBASE CONFIGURATION
-    const firebaseConfig = {
-      apiKey: "AIzaSyCsk7aaZFJajq5c6njaljeHwqM8kapHXRY",
-      authDomain: "js-crud-1b349.firebaseapp.com",
-      databaseURL: "https://js-crud-1b349-default-rtdb.firebaseio.com",
-      projectId: "js-crud-1b349",
-      storageBucket: "js-crud-1b349.firebasestorage.app",
-      messagingSenderId: "984475836399",
-      appId: "1:984475836399:web:6aeed58f938dd6c956a01a",
-      measurementId: "G-K7R09V4L0T"
-    };
-
-    // Import Firebase modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
+  <!-- JavaScript -->
+  <script>
     // DOM Elements
-    const googleLogin = document.getElementById('googleLogin');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const userEmail = document.getElementById('userEmail');
-    const userInfo = document.getElementById('userInfo');
-    const loginText = document.getElementById('loginText');
-    const loginSpinner = document.getElementById('loginSpinner');
     const bookingForm = document.getElementById('bookingForm');
     const messageEl = document.getElementById('message');
     const submitText = document.getElementById('submitText');
     const submitSpinner = document.getElementById('submitSpinner');
-
-    // Google Sign-In
-    googleLogin.addEventListener('click', async () => {
-      try {
-        googleLogin.classList.add('loading');
-        loginText.classList.add('hidden');
-        loginSpinner.classList.remove('hidden');
-        
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        showMessage(`🎉 Welcome, ${user.displayName || user.email}! You can now submit your project.`, 'success');
-        
-      } catch (error) {
-        console.error('Sign-in error:', error);
-        
-        // Specific error handling
-        if (error.code === 'auth/operation-not-allowed') {
-          showMessage('⚠️ Google Sign-In is not enabled. Please contact support or try the demo version below.', 'error');
-          enableDemoMode();
-        } else if (error.code === 'auth/popup-blocked') {
-          showMessage('📢 Popup was blocked. Please allow popups for this site and try again.', 'warning');
-        } else if (error.code === 'auth/popup-closed-by-user') {
-          showMessage('ℹ️ Sign-in was cancelled.', 'info');
-        } else {
-          showMessage(`❌ Sign-in failed: ${error.message}`, 'error');
-          enableDemoMode();
-        }
-      } finally {
-        googleLogin.classList.remove('loading');
-        loginText.classList.remove('hidden');
-        loginSpinner.classList.add('hidden');
-      }
-    });
-
-    // Enable demo mode if Google Sign-in fails
-    function enableDemoMode() {
-      // Allow form submission without authentication
-      const demoInfo = document.createElement('div');
-      demoInfo.className = 'mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200';
-      demoInfo.innerHTML = `
-        <p class="text-blue-800 font-medium">Demo Mode Activated</p>
-        <p class="text-blue-600 text-sm">You can submit the form without signing in for testing purposes.</p>
-      `;
-      document.getElementById('loginSection').appendChild(demoInfo);
-      
-      // Update form submission to work without auth
-      window.demoMode = true;
-    }
-
-    // Sign Out
-    logoutBtn.addEventListener('click', async () => {
-      try {
-        await signOut(auth);
-        showMessage('👋 Signed out successfully', 'info');
-      } catch (error) {
-        showMessage(`❌ Sign-out failed: ${error.message}`, 'error');
-      }
-    });
-
-    // Auth State Listener
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in
-        userEmail.textContent = user.email;
-        userInfo.classList.remove('hidden');
-        googleLogin.classList.add('hidden');
-        
-        // Pre-fill name if available
-        const nameField = document.querySelector('input[name="name"]');
-        if (user.displayName && !nameField.value) {
-          nameField.value = user.displayName;
-        }
-      } else {
-        // User is signed out
-        userInfo.classList.add('hidden');
-        googleLogin.classList.remove('hidden');
-      }
-    });
 
     // Form Submission
     bookingForm.addEventListener('submit', async (e) => {
@@ -327,16 +261,6 @@
       const submitButton = bookingForm.querySelector('button[type="submit"]');
       const formData = new FormData(bookingForm);
       const data = Object.fromEntries(formData);
-      
-      // Add user email if logged in, otherwise use demo email
-      if (auth.currentUser) {
-        data.email = auth.currentUser.email;
-      } else if (window.demoMode) {
-        data.email = 'demo-user@example.com';
-      } else {
-        showMessage('🔐 Please sign in with Google to submit your project', 'warning');
-        return;
-      }
 
       // Add timestamp
       data.timestamp = new Date().toISOString();
@@ -397,7 +321,7 @@
       messageEl.classList.remove('hidden');
       
       // Auto-hide success messages after 8 seconds
-      if (type === 'success' || type === 'info') {
+      if (type === 'success') {
         setTimeout(() => {
           messageEl.classList.add('hidden');
         }, 8000);
